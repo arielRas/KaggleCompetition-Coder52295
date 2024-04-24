@@ -40,6 +40,16 @@ class Correlations():
             df_corr.loc[var, 'correlation'] = math.sqrt(chi_2.statistic/(self.df.shape[0]+chi_2.statistic))
         self._plot_correlation(df_corr)
 
+    #FUNCION PARA PLOTEAR COEFICIENTE DE CONTINGENCIA
+    def plot_contingency_coef(self):
+        n = self.df.shape[0]
+        df_corr = self._get_correlation_dataframe()
+        for var in self.vars:
+            contingency_table = pd.crosstab(self.df[self.target_var], self.df[var])
+            chi_2 = stats.chi2_contingency(contingency_table)
+            df_corr.loc[var, 'coef'] = math.sqrt(chi_2.statistic/(n + chi_2.statistic))            
+        self._plot_correlation(df_corr)
+
     #FUNCION PARA PLOTEAR EL GRAFICO DE BARRAS
     def _plot_correlation(self, df_corr:pd.DataFrame):
         colors = ['#000E9E' if corr < 0 else '#3DB2DA' for corr in df_corr.correlation]
@@ -54,10 +64,27 @@ class Correlations():
         plt.axvline(x=0, color='black', linestyle='-')
         plt.tight_layout()
         plt.show()
-        plt.style.use("default")  
+        plt.style.use("default")
 
+class Distributions():
+    def __init__(self, x:pd.Series, hue:pd.Series, bins:int, var_name:str, label:str):
+        self.x = x
+        self.hue = hue
+        self.bins = bins
+        self.var_name = var_name
+        self.label = label
 
-df = pd.read_csv('train_clean.csv')
-numeric_vars = ['CreditScore','Age','Tenure','Balance','NumOfProducts','EstimatedSalary']
-correlations = Correlations(df, 'Exited', numeric_vars, 'Cuantitativas')
-correlations.plot_biserial_point()
+    def plot_distribution(self):
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,5))
+        sns.histplot(x=self.x, hue=self.hue, multiple='stack',bins=self.bins, kde=True, ax=ax[0])
+        ax[0].set_title(f'Distribucion de la variable {self.var_name}')
+        ax[0].set_xlabel(self.label)
+        ax[0].get_legend().set_title('Salió del banco')
+
+        sns.boxplot(x=self.x, hue=self.hue, ax=ax[1])
+        ax[1].set_title(f'Distribucion de la variable {self.var_name}')
+        ax[1].set_xlabel(self.label)
+        ax[1].set_ylabel(f'Variable "{self.var_name}"')
+        ax[1].get_legend().set_title('Salió del banco')
+        plt.tight_layout()
+        plt.show()
