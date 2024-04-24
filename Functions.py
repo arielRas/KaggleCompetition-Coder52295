@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
@@ -67,16 +68,15 @@ class Correlations():
         plt.style.use("default")
 
 class Distributions():
-    def __init__(self, x:pd.Series, hue:pd.Series, bins:int, var_name:str, label:str):
+    def __init__(self, x:pd.Series, hue:pd.Series, var_name:str, label:str):
         self.x = x
         self.hue = hue
-        self.bins = bins
         self.var_name = var_name
         self.label = label
 
-    def plot_distribution(self):
+    def plot_distribution(self, bins:int):
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,5))
-        sns.histplot(x=self.x, hue=self.hue, multiple='stack',bins=self.bins, kde=True, ax=ax[0])
+        sns.histplot(x=self.x, hue=self.hue, multiple='stack',bins=bins, kde=True, ax=ax[0])
         ax[0].set_title(f'Distribucion de la variable {self.var_name}')
         ax[0].set_xlabel(self.label)
         ax[0].get_legend().set_title('Salió del banco')
@@ -88,3 +88,22 @@ class Distributions():
         ax[1].get_legend().set_title('Salió del banco')
         plt.tight_layout()
         plt.show()
+
+
+    def plot_distribution_cualit(self):
+        mpl.style.use('bmh')
+        fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(12,5))
+        sns.countplot(x=self.x , hue=self.hue, ax=ax[0])
+        ax[0].set_title(f'Distribucion de la variable {self.var_name}')
+        ax[0].set_xlabel(self.label)
+        ax[0].set_ylabel('Frecuencia')
+        ax[0].get_legend().set_title('Salió del banco')
+
+        sns.countplot(x=self.x , hue=self.hue, stat='proportion', ax=ax[1])
+        ax[1].set_title(f'Distribucion de la variable {self.var_name}')
+        ax[1].set_xlabel(self.label)
+        ax[1].set_ylabel('Proporcion')
+        ax[1].get_legend().set_title('Salió del banco')
+        plt.tight_layout()
+        plt.show()
+        mpl.style.use('default')
