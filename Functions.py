@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import math
 from scipy import stats
+from sklearn.metrics import confusion_matrix, roc_curve
 
 class Correlations():
     def __init__(self, df:pd.DataFrame, target_var:str, vars:list, vars_type:str):
@@ -74,13 +75,13 @@ class Distributions():
         self.var_name = var_name
         self.label = label
 
+    #FUNCION PARA PLOTEAR HISTOGRAMA Y BOXPLOT DE UNA VARIABLE
     def plot_distribution(self, bins:int):
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12,5))
         sns.histplot(x=self.x, hue=self.hue, multiple='stack',bins=bins, kde=True, ax=ax[0])
         ax[0].set_title(f'Distribucion de la variable {self.var_name}')
         ax[0].set_xlabel(self.label)
         ax[0].get_legend().set_title('Salió del banco')
-
         sns.boxplot(x=self.x, hue=self.hue, ax=ax[1])
         ax[1].set_title(f'Distribucion de la variable {self.var_name}')
         ax[1].set_xlabel(self.label)
@@ -89,7 +90,7 @@ class Distributions():
         plt.tight_layout()
         plt.show()
 
-
+    #FUNCION PARA PLOTEAR DOS GRAFICOS DE BARRAS DE VARIABLE CUALITATIVA(FRECUENCIA Y PROPORCION)
     def plot_distribution_cualit(self):
         mpl.style.use('bmh')
         fig, ax = plt.subplots(ncols=2, nrows=1, figsize=(12,5))
@@ -98,12 +99,38 @@ class Distributions():
         ax[0].set_xlabel(self.label)
         ax[0].set_ylabel('Frecuencia')
         ax[0].get_legend().set_title('Salió del banco')
-
         sns.countplot(x=self.x , hue=self.hue, stat='proportion', ax=ax[1])
         ax[1].set_title(f'Distribucion de la variable {self.var_name}')
         ax[1].set_xlabel(self.label)
         ax[1].set_ylabel('Proporcion')
         ax[1].get_legend().set_title('Salió del banco')
+        plt.tight_layout()
+        plt.show()
+        mpl.style.use('default')
+
+class Metrics():
+    def __init__(self) -> None:
+        pass
+
+    def plot_confusion_matrix_dicotomic(self, y_true, y_pred, label_1, label_2):
+        matrix = confusion_matrix(y_true, y_pred)
+        sns.heatmap(matrix, fmt='.0f', annot=True, cmap='inferno')
+        plt.title('Matriz de confusion')
+        plt.xlabel('Predict data')        
+        plt.ylabel('True data')
+        if label_1 and label_2:
+            plt.xticks(ticks=[0.5,1.5], labels=[label_1, label_2])
+            plt.yticks(ticks=[0.5,1.5], labels=[label_1, label_2])
+        plt.show()
+
+    def plot_roc_curve(self, y_true, y_prob):
+        mpl.style.use('ggplot')
+        false_positive_rate, true_positive_rate, _threshold = roc_curve(y_true, y_prob)
+        sns.lineplot(x=false_positive_rate, y=true_positive_rate)
+        plt.plot([0, 1], ls="--")
+        plt.title('Curva ROC')
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
         plt.tight_layout()
         plt.show()
         mpl.style.use('default')
