@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import math
 from scipy import stats
-from sklearn.metrics import confusion_matrix, roc_curve
+from sklearn.metrics import confusion_matrix, roc_curve, classification_report, roc_auc_score
 
 class Correlations():
     def __init__(self, df:pd.DataFrame, target_var:str, vars:list, vars_type:str):
@@ -134,3 +134,20 @@ class Metrics():
         plt.tight_layout()
         plt.show()
         mpl.style.use('default')
+
+    def get_metrics(self, model:str, sample:str, y_true, y_pred, y_prob)->dict:
+        report = classification_report(y_true, y_pred, output_dict=True)
+        precision_0 = report.get('0', {}).get('precision', None)
+        precision_1 = report.get('1', {}).get('precision', None)
+        recall_0 = report.get('0', {}).get('recall', None)
+        recall_1 = report.get('1', {}).get('recall', None)
+        f1_0 = report.get('0', {}).get('f1-score', None)
+        f1_1 = report.get('1', {}).get('f1-score', None)
+        accuracy = report.get('accuracy', None)
+        rog_score = roc_auc_score(y_true, y_prob)
+        keys = ['model','sample','accuracy','rog_score','precision_0','precision_1','recall_0','recall_1','f1_score_0','f1_score_1']
+        values =  [model, sample, accuracy, rog_score, precision_0, precision_1, recall_0, recall_1, f1_0, f1_1]
+        metrics = {}
+        for key, value in zip(keys, values):
+            metrics[key] = value
+        return metrics
